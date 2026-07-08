@@ -30,7 +30,7 @@ add_executable(forthray
 )
 
 target_include_directories(forthray PRIVATE ${PFORTH_CSRC})
-target_compile_definitions(forthray PRIVATE PF_USER_CUSTOM PF_SUPPORT_FP)
+target_compile_definitions(forthray PRIVATE PF_USER_CUSTOM PF_SUPPORT_FP PF_NO_GLOBAL_INIT)
 
 if(NOT MSVC)
     target_compile_options(forthray PRIVATE

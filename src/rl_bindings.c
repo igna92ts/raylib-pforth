@@ -105,16 +105,33 @@ static void rlDrawRectangle(void) {
 /* ---- Step 2: CustomFunctionTable ---------------------------- */
 /* Do not change the name; the pForth kernel uses it.
 ** Order here MUST match the index order in Step 3. */
-CFunc0 CustomFunctionTable[] = {
-  (CFunc0) rlInitWindow,
-  (CFunc0) rlCloseWindow,
-  (CFunc0) rlWindowShouldClose,
-  (CFunc0) rlSetTargetFPS,
-  (CFunc0) rlBeginDrawing,
-  (CFunc0) rlEndDrawing,
-  (CFunc0) rlClearBackground,
-  (CFunc0) rlDrawRectangle,
+typedef struct {
+    const char *name;
+    CFunc0      func;
+} RlWord;
+
+static const RlWord rlWords[] = {
+  { "RL.INIT-WINDOW", (CFunc0) rlInitWindow},
+  { "RL.CLOSE-WINDOW",(CFunc0) rlCloseWindow},
+  { "RL.WINDOW-SHOULD-CLOSE",(CFunc0) rlWindowShouldClose},
+  { "RL.SET-FPS",(CFunc0) rlSetTargetFPS},
+  { "RL.BEGIN-DRAWING",(CFunc0) rlBeginDrawing},
+  { "RL.END-DRAWING", (CFunc0) rlEndDrawing},
+  { "RL.CLEAR-BACKGROUND",(CFunc0) rlClearBackground},
+  { "RL.DRAW-RECTANGLE", (CFunc0) rlDrawRectangle},
 };
+
+/* The kernel's table (name is sacred), filled by the loop below. */
+CFunc0 CustomFunctionTable[ sizeof(rlWords) / sizeof(rlWords[0]) ];
+ 
+/* Called by the kernel at EVERY startup (name is sacred). */
+Err LoadCustomFunctionTable( void ) {
+    int i;
+    int count = sizeof(rlWords) / sizeof(rlWords[0]);
+    for( i = 0; i < count; i++ )
+        CustomFunctionTable[i] = rlWords[i].func;
+    return 0;
+}
 
 /* ---- Step 3: register Forth words --------------------------- */
 /* Do not change the name; the pForth kernel calls it.
@@ -122,27 +139,16 @@ CFunc0 CustomFunctionTable[] = {
 ** Indices must march in lockstep with the table above —
 ** this is also why the .dic must be rebuilt when this file
 ** changes (the dictionary stores these indices). */
- 
+
+/* Called by the kernel only during -i dictionary builds
+** (name is sacred). Index = position in rlWords. */
 Err CompileCustomFunctions( void ) {
-  Err err;
-  int i = 0;
- 
-  err = CreateGlueToC("RL.INIT-WINDOW", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.CLOSE-WINDOW", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.WINDOW-SHOULD-CLOSE", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.SET-FPS", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.BEGIN-DRAWING", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.END-DRAWING", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.CLEAR-BACKGROUND", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
-  err = CreateGlueToC("RL.DRAW-RECT", i++, C_RETURNS_VOID, 0);
-  if( err < 0 ) return err;
- 
-  return 0;
+    int i;
+    Err err;
+    int count = sizeof(rlWords) / sizeof(rlWords[0]);
+    for( i = 0; i < count; i++ ) {
+        err = CreateGlueToC( rlWords[i].name, i, C_RETURNS_VOID, 0 );
+        if( err < 0 ) return err;
+    }
+    return 0;
 }

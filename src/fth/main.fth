@@ -4,7 +4,7 @@
 : frame ( -- )
   rl.begin-drawing
     black rl.clear-background
-    220 160 200 160 white rl.draw-rect
+    220 160 200 160 white rl.draw-rectangle
   rl.end-drawing ;
 
 : main ( -- )
