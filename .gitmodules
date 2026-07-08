@@ -1,0 +1,12 @@
+[submodule "pforth"]
+	path = pforth
+	url = git@github.com:philburk/pforth.git
+[submodule "raylib"]
+	path = raylib
+	url = git@github.com:raysan5/raylib.git
+[submodule "vendor/raylib"]
+	path = vendor/raylib
+	url = git@github.com:raysan5/raylib.git
+[submodule "vendor/pforth"]
+	path = vendor/pforth
+	url = git@github.com:philburk/pforth.git
